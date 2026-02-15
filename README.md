@@ -1,3 +1,63 @@
+```markdown
+# RIME-LMDG-ARM
+
+本项目是 [amzxyz/RIME-LMDG](https://github.com/amzxyz/RIME-LMDG) 的 **ARM64 架构优化分支**。  
+在原项目基础上，主要增加了 **ARM64 原生构建支持**，通过 GitHub Actions 自动编译生成适用于 **ARM64 Linux (Debian/Ubuntu/Armbian)** 的 `.deb` 安装包和通用二进制文件。
+
+---
+
+## ✨ 主要改动
+
+- **原生 ARM64 构建**  
+  利用 GitHub 提供的 `ubuntu-24.04-arm` 运行器，直接编译出 ARM64 架构的可执行文件，无需 QEMU 模拟，性能更高、兼容性更好。
+- **自动打包**  
+  每次推送到 `wanxiang` 分支或手动触发工作流后，GitHub Actions 会自动：
+  - 编译生成 `wanxiang-tools` 通用二进制
+  - 打包成 Debian 安装包 `wanxiang-tools_linux_arm64.deb`
+  - 发布到 Actions Artifacts 或 Release（tag: `tool`）
+- **保持原项目功能**  
+  完整保留万象词库、语法模型、拼音标注工具链等所有核心功能，与上游同步更新。
+
+---
+
+## 📦 安装方法
+
+### 1. 从 Release 下载
+在 [Releases](https://github.com/Harmiel715/RIME-LMDG-ARM/releases) 页面找到最新版本（tag 为 `tool`），下载以下文件：
+- `wanxiang-tools_linux_arm64.deb`（推荐，Debian/Ubuntu ARM64 系统）
+- `wanxiang-tools`（通用二进制，适用于任何 Linux ARM64 环境）
+
+### 2. 安装 .deb 包
+```bash
+sudo dpkg -i wanxiang-tools_linux_arm64.deb
+sudo apt install -f   # 如有依赖缺失，自动修复
+```
+
+### 3. 使用通用二进制（未测试）
+```bash
+chmod +x wanxiang-tools
+./wanxiang-tools
+```
+
+---
+
+## ⚠️ 注意事项（重要）
+
+### 关于自动部署的已知问题
+在 **Ubuntu 24.04 LTS 的 Armbian** 或其他基于 Ubuntu 24.04 的 ARM 系统中，更新工具执行到最后一步时可能会提示：
+
+```
+❌ 错误: 未找到 qdbus6 工具 ... 部署失败
+```
+
+这是因为系统缺少 `qdbus6`（Qt6 D-Bus 工具）。如果尝试安装 `qdbus-qt6` 包，使用 `ln -s /usr/lib/qt6/bin/qdbus /usr/local/bin/qdbus6` 来创建一个名为qdbus6的符号链接，会导致新的问题。
+
+可能需要手动运行 `qdbus org.fcitx.Fcitx5 /controller org.fcitx.Fcitx.Controller1.SetConfig "fcitx://config/addon/rime/deploy" ""` 来触发部署。Rime 位于系统托盘中的部署选项也同样适用。
+
+之后即可正常使用更新后的万象词库和语法模型。
+
+---
+
 ## 重磅发布：基于32GB超大规模语料的RIME中文语法模型与词库构建
 **——万象语法模型、万象向量词库**      [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/amzxyz/RIME-LMDG)
 
