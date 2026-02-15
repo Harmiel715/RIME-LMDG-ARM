@@ -1,76 +1,77 @@
-name: Auto Build Wanxiang Tools (ARM64 only)
+name: Build Wanxiang Tools (ARM64)
 
 on:
   push:
-    branches: 
-      - wanxiang
+    branches: [ wanxiang ]
     paths:
       - 'pypinyin/**'
       - 'wanxiang-tools.py'
   workflow_dispatch:
 
 jobs:
-  # =================================================
-  # 仅 ARM64 构建
-  # =================================================
-  build-linux-arm64:
-    runs-on: ubuntu-22.04
+  build-arm64:
+    # 使用 GitHub 官方提供的 ARM64 运行器（公共仓库免费）
+    runs-on: ubuntu-24.04-arm   # 或 ubuntu-22.04-arm
+
     steps:
       - uses: actions/checkout@v4
 
-      # 配置 QEMU 以运行 ARM64 容器
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Build in ARM64 container
+      - name: Install system dependencies
         run: |
-          # 将整个仓库挂载到 ARM64 Ubuntu 容器内执行构建
-          docker run --rm --platform linux/arm64 \
-            -v $PWD:/workspace -w /workspace \
-            arm64v8/ubuntu:22.04 \
-            bash -c "
-              set -e
-              apt-get update && apt-get install -y binutils imagemagick python3 python3-pip python3-venv
-              python3 -m venv venv
-              source venv/bin/activate
-              pip install PySide6 requests pyinstaller
-              if [ ! -f icon.ico ]; then touch icon.ico; fi
-              convert icon.ico -resize 256x256 wanxiang-tools.png
-              pyinstaller -F -w \
-                --clean \
-                --name wanxiang-tools \
-                --paths . \
-                --add-data 'pypinyin:pypinyin' \
-                --hidden-import requests \
-                --exclude-module tkinter \
-                --exclude-module numpy \
-                --exclude-module matplotlib \
-                --exclude-module libsystemd \
-                --exclude-module PIL \
-                --exclude-module cv2 \
-                --exclude-module PySide6.QtQml \
-                --exclude-module PySide6.QtQuick \
-                --exclude-module PySide6.QtWebEngine \
-                --exclude-module PySide6.Qt3DCore \
-                -i icon.ico \
-                wanxiang-tools.py
-              strip dist/wanxiang-tools
-            "
+          sudo apt-get update
+          sudo apt-get install -y binutils imagemagick python3 python3-pip python3-venv
 
-      # 制作 .deb 包 (ARM64)
-      - name: Package .deb for arm64
+      - name: Set up Python virtual environment
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install PySide6 requests pyinstaller
+
+      - name: Prepare icon
+        run: |
+          if [ ! -f icon.ico ]; then touch icon.ico; fi
+          # 如果没有真实图标，可以跳过或使用占位符，这里假设存在
+          convert icon.ico -resize 256x256 wanxiang-tools.png || true
+
+      - name: Build with PyInstaller
+        run: |
+          source venv/bin/activate
+          pyinstaller -F -w \
+            --clean \
+            --name wanxiang-tools \
+            --paths . \
+            --add-data "pypinyin:pypinyin" \
+            --hidden-import requests \
+            --exclude-module tkinter \
+            --exclude-module numpy \
+            --exclude-module matplotlib \
+            --exclude-module libsystemd \
+            --exclude-module PIL \
+            --exclude-module cv2 \
+            --exclude-module PySide6.QtQml \
+            --exclude-module PySide6.QtQuick \
+            --exclude-module PySide6.QtWebEngine \
+            --exclude-module PySide6.Qt3DCore \
+            -i icon.ico \
+            wanxiang-tools.py
+
+      - name: Strip binary (optional)
+        run: strip dist/wanxiang-tools || true
+
+      - name: Create .deb package for arm64
         run: |
           VERSION="1.0.${{ github.run_number }}"
           ARCH="arm64"
-          mkdir -p dist/deb/usr/local/bin
-          mkdir -p dist/deb/usr/share/pixmaps
-          mkdir -p dist/deb/usr/share/applications
-          mkdir -p dist/deb/DEBIAN
+          mkdir -p deb/usr/local/bin
+          mkdir -p deb/usr/share/pixmaps
+          mkdir -p deb/usr/share/applications
+          mkdir -p deb/DEBIAN
 
-          cp dist/wanxiang-tools dist/deb/usr/local/bin/
-          cp wanxiang-tools.png dist/deb/usr/share/pixmaps/
+          cp dist/wanxiang-tools deb/usr/local/bin/
+          cp wanxiang-tools.png deb/usr/share/pixmaps/ || true
 
-          cat > dist/deb/usr/share/applications/wanxiang-tools.desktop <<EOF
+          cat > deb/usr/share/applications/wanxiang-tools.desktop <<EOF
           [Desktop Entry]
           Name=Wanxiang Tools
           Name[zh_CN]=万象词库工具
@@ -83,39 +84,38 @@ jobs:
           StartupWMClass=wanxiang-tools
           EOF
 
-          chmod 755 dist/wanxiang-tools
+          chmod 755 deb/usr/local/bin/wanxiang-tools
 
-          cat > dist/deb/DEBIAN/control <<EOF
+          cat > deb/DEBIAN/control <<EOF
           Package: wanxiang-tools
           Version: ${VERSION}
           Section: utils
           Priority: optional
           Architecture: ${ARCH}
-          Depends: libc6, libgcc1, libgl1, libxkbcommon-x11-0, libegl1
+          Depends: libc6, libgcc-s1, libgl1, libxkbcommon-x11-0, libegl1
           Maintainer: Wanxiang <user@example.com>
           Description: 万象词库-刷拼音-辅助码工具 (ARM64)
            支持rime用户词库与固定词库格式，用于帮助维护自己的挂接词库与非万象词库生成的用户词库迁移到万象。
           EOF
 
-          dpkg-deb --build dist/deb "dist/wanxiang-tools_linux_${ARCH}.deb"
+          dpkg-deb --build deb "wanxiang-tools_linux_${ARCH}.deb"
 
-      # 准备上传产物
-      - name: Prepare Artifacts
+      - name: Prepare artifacts
         run: |
-          mkdir -p upload_stage
-          cp dist/wanxiang-tools upload_stage/          # 通用二进制
-          cp dist/*.deb upload_stage/                   # .deb 包
-          cp wanxiang-tools.png upload_stage/           # 图标（可选）
+          mkdir -p upload
+          cp dist/wanxiang-tools upload/               # 通用二进制
+          cp *.deb upload/                              # .deb 包
+          cp wanxiang-tools.png upload/ || true         # 图标（可选）
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: linux-arm64-dist
-          path: upload_stage/*
+          name: wanxiang-tools-arm64
+          path: upload/*
 
-  # 可选：如果需要自动创建 GitHub Release（包含 ARM64 产物）
-  publish:
-    needs: build-linux-arm64
+  # 可选：自动创建 GitHub Release
+  release:
+    needs: build-arm64
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -125,10 +125,10 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: linux-arm64-dist
+          name: wanxiang-tools-arm64
           path: release_files
 
-      - name: Delete old Release and Tag (optional)
+      - name: Delete old release (optional)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
@@ -145,7 +145,7 @@ jobs:
           name: "万象词库工具 (ARM64)"
           body: |
             ## ARM64 专用构建
-            - 支持 Debian/Ubuntu ARM64 系统（如树莓派、Armbian、各类 ARM 开发板）。
+            - 原生 ARM64 二进制，适用于 Debian/Ubuntu ARM64 系统（树莓派、Armbian、各类 ARM 开发板）。
             - 包含通用二进制和 `.deb` 安装包。
 
             ## 📦 安装方法
