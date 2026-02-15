@@ -1,4 +1,3 @@
-```markdown
 # RIME-LMDG-ARM
 
 本项目是 [amzxyz/RIME-LMDG](https://github.com/amzxyz/RIME-LMDG) 的 **ARM64 架构优化分支**。  
