@@ -57,7 +57,7 @@ from PySide6.QtWidgets import (
 )
 
 # ============== 常量/工具 ==============
-TOOL_VERSION = "v3.0.2beta"
+TOOL_VERSION = "v3.0.6beta"
 
 AUX_SEP_REGEX = r'[;\[]'
 YAML_HEADS = ('---', 'name:', 'version:', 'sort:', '...')
@@ -94,8 +94,8 @@ class DynamicInputWidget(QWidget):
         self._is_updating = False 
         
         # 【视觉核心】：全局统一标准
-        self.normal_style = "border: 1px solid #D5E3D6; border-bottom: 2px solid #C1D4C3; background: #FFFFFF; border-radius: 4px; margin: 0px; padding: 4px 8px;"
-        self.hover_style = "border: 1px solid #61A165; border-bottom: 2px solid #49814D; background: #FFFFFF; border-radius: 4px; margin: 0px; padding: 4px 8px;"
+        self.normal_style = ""
+        self.hover_style = ""
         
         self.input_field.setStyleSheet(self.normal_style)
         self.input_field.setFixedHeight(34) # 锁死单行高度
@@ -168,7 +168,7 @@ class DynamicActionWidget(QWidget):
         self.btn_del.clicked.connect(lambda *args: self.delete_requested.emit())
         
         self.desc_label = QLabel(desc_text)
-        self.desc_label.setStyleSheet("color: #666; font-size: 13px; padding-top: 3px;")
+        self.desc_label.setStyleSheet("font-size: 13px; padding-top: 3px;")
         self.layout.addWidget(self.desc_label, stretch=1)
         
         self._buttons_visible = False
@@ -253,11 +253,11 @@ class DynamicKeyValueWidget(QWidget):
         self._hover_active = False
         self._is_updating = False 
         
-        self.style_single = "border: 1px solid #D5E3D6; border-bottom: 2px solid #C1D4C3; background: #FFFFFF; border-radius: 4px; margin: 0px; padding: 4px 8px;"
-        self.style_single_hover = "border: 1px solid #61A165; border-bottom: 2px solid #49814D; background: #FFFFFF; border-radius: 4px; margin: 0px; padding: 4px 8px;"
+        self.style_single = ""
+        self.style_single_hover = ""
         
-        self.style_multi = "border: 1px solid #D5E3D6; border-bottom: 2px solid #C1D4C3; background: #FFFFFF; border-radius: 4px; margin: 0px; padding: 6px 8px;"
-        self.style_multi_hover = "border: 1px solid #61A165; border-bottom: 2px solid #49814D; background: #FFFFFF; border-radius: 4px; margin: 0px; padding: 6px 8px;"
+        self.style_multi = ""
+        self.style_multi_hover = ""
         
         self.key_box.setStyleSheet(self.style_single)
         self.val_line.setStyleSheet(self.style_single)
@@ -485,7 +485,6 @@ class AlgebraPatchWidget(QWidget):
         
         # --- 3. 细分模糊音 (网格紧凑布局) ---
         gb_mohu = QGroupBox("☁️ 模糊音")
-        gb_mohu.setStyleSheet("QGroupBox { font-weight: bold; color: #555; border: 1px solid #D5E3D6; border-radius: 4px; margin-top: 5px; } QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 3px 0 3px; }")
         gl = QGridLayout(gb_mohu)
         gl.setContentsMargins(10, 15, 10, 5)
         gl.setVerticalSpacing(2)
@@ -534,8 +533,8 @@ class AlgebraPatchWidget(QWidget):
         self.is_direct = is_direct
         self.warn_lbl.setVisible(is_direct)
         
-        style_cb = "border: 1px solid #D5E3D6; border-bottom: 2px solid #C1D4C3; background: #FFFFFF; border-radius: 4px; padding: 4px 8px; font-weight: bold; color: #333;"
-        style_cb_disabled = "border: 1px solid #D5E3D6; background: #F0F5F1; border-radius: 4px; padding: 4px 8px; color: #aaa; font-weight: bold;"
+        style_cb = ""
+        style_cb_disabled = ""
         
         # 拼写方案：如果在直写模式则置灰不可用
         self.cb_scheme.setEnabled(not is_direct)
@@ -550,18 +549,17 @@ class AlgebraPatchWidget(QWidget):
             self.cb_aux.setToolTip("")
             
         # 其他控件跟随 is_direct 状态
-        self.chk_tiquan.setStyleSheet("font-weight: bold; color: #333;" if not is_direct else "font-weight: bold; color: #aaa;")
+        self.chk_tiquan.setStyleSheet("font-weight: bold;")
         if is_direct:
             self.chk_tiquan.setEnabled(False)
         else:
-            self._on_scheme_changed(self.cb_scheme.currentText()) # 解锁时重新触发一次提权可用性校验
+            self._on_scheme_changed(self.cb_scheme.currentText()) 
             
         for cb in self.fuzzy_checks.values():
             cb.setEnabled(not is_direct)
-            cb.setStyleSheet("color: #333;" if not is_direct else "color: #aaa;")
+            cb.setStyleSheet("")
             
         self.ext_edit.setReadOnly(is_direct)
-        self.ext_edit.setStyleSheet("border: 1px solid #D5E3D6; background: #FFFFFF; border-radius: 4px; padding: 6px;" if not is_direct else "background: #F0F5F1; border: 1px solid #D5E3D6; border-radius: 4px; padding: 6px; color: #aaa;")
         self.ext_edit.setPlaceholderText("自定义扩展，回车换行，无需写 -" if not is_direct else "只读展示")
 
     def _on_scheme_changed(self, text):
@@ -665,8 +663,8 @@ class ReverseAlgebraWidget(QWidget):
     def set_direct_mode(self, is_direct):
         self.warn_lbl.setVisible(is_direct)
         
-        style_cb = "border: 1px solid #D5E3D6; border-bottom: 2px solid #C1D4C3; background: #FFFFFF; border-radius: 4px; padding: 4px 8px; font-weight: bold; color: #333;"
-        style_cb_disabled = "border: 1px solid #D5E3D6; background: #F0F5F1; border-radius: 4px; padding: 4px 8px; color: #aaa; font-weight: bold;"
+        style_cb = ""
+        style_cb_disabled = ""
         
         self.cb_pinyin.setEnabled(not is_direct)
         self.cb_pinyin.setStyleSheet(style_cb if not is_direct else style_cb_disabled)
@@ -727,7 +725,7 @@ class EnglishAlgebraWidget(QWidget):
         self.txt_include = QLineEdit("通用规则 (自动强制挂载)")
         self.txt_include.setFixedHeight(34)
         self.txt_include.setReadOnly(True)
-        self.txt_include.setStyleSheet("border: 1px solid #D5E3D6; background: #F0F5F1; border-radius: 4px; padding: 4px 8px; color: #888; font-weight: bold;")
+        self.txt_include.setStyleSheet("background: rgba(128, 128, 128, 0.1); border-radius: 4px; padding: 4px 8px; color: #888; font-weight: bold;")
         h1.addWidget(QLabel("📚 基础规则:"), 0); h1.addWidget(self.txt_include, 1)
         self.layout.addLayout(h1)
 
@@ -744,8 +742,8 @@ class EnglishAlgebraWidget(QWidget):
 
     def set_direct_mode(self, is_direct):
         self.warn_lbl.setVisible(is_direct)
-        style_cb = "border: 1px solid #D5E3D6; border-bottom: 2px solid #C1D4C3; background: #FFFFFF; border-radius: 4px; padding: 4px 8px; font-weight: bold; color: #333;"
-        style_cb_disabled = "border: 1px solid #D5E3D6; background: #F0F5F1; border-radius: 4px; padding: 4px 8px; color: #aaa; font-weight: bold;"
+        style_cb = ""
+        style_cb_disabled = ""
         
         self.cb_schema.setEnabled(not is_direct)
         self.cb_schema.setStyleSheet(style_cb if not is_direct else style_cb_disabled)
@@ -791,7 +789,7 @@ class MixedAlgebraWidget(QWidget):
         self.txt_include = QLineEdit("通用派生规则 (自动强制挂载)")
         self.txt_include.setFixedHeight(34)
         self.txt_include.setReadOnly(True)
-        self.txt_include.setStyleSheet("border: 1px solid #D5E3D6; background: #F0F5F1; border-radius: 4px; padding: 4px 8px; color: #888; font-weight: bold;")
+        self.txt_include.setStyleSheet("background: rgba(128, 128, 128, 0.1); border-radius: 4px; padding: 4px 8px; color: #888; font-weight: bold;")
         h1.addWidget(QLabel("📚 基础规则:"), 0); h1.addWidget(self.txt_include, 1)
         self.layout.addLayout(h1)
 
@@ -808,8 +806,8 @@ class MixedAlgebraWidget(QWidget):
 
     def set_direct_mode(self, is_direct):
         self.warn_lbl.setVisible(is_direct)
-        style_cb = "border: 1px solid #D5E3D6; border-bottom: 2px solid #C1D4C3; background: #FFFFFF; border-radius: 4px; padding: 4px 8px; font-weight: bold; color: #333;"
-        style_cb_disabled = "border: 1px solid #D5E3D6; background: #F0F5F1; border-radius: 4px; padding: 4px 8px; color: #aaa; font-weight: bold;"
+        style_cb = ""
+        style_cb_disabled = ""
         
         self.cb_schema.setEnabled(not is_direct)
         self.cb_schema.setStyleSheet(style_cb if not is_direct else style_cb_disabled)
@@ -866,8 +864,8 @@ class DynamicMultiLineWidget(QWidget):
         self._is_updating = False 
         
         # 纯白底色 + 莫兰迪绿边框
-        self.style_normal = "border: 1px solid #D5E3D6; border-bottom: 2px solid #C1D4C3; background: #FFFFFF; border-radius: 5px; padding: 6px 10px;"
-        self.style_hover = "border: 1px solid #61A165; border-bottom: 2px solid #49814D; background: #FFFFFF; border-radius: 5px; padding: 6px 10px;"
+        self.style_normal = ""
+        self.style_hover = ""
         
         self.text_field.setStyleSheet(self.style_normal)
         self.layout.addWidget(self.text_field)
@@ -1833,14 +1831,14 @@ def _set_nested_val(d, path, val):
     curr[keys[-1]] = val
 # —— GitHub 链接 ——
 GITHUB_LINKS = [
-    ("万象拼音项目主页", "https://github.com/amzxyz/rime_wanxiang"),
+    ("万象拼音项目主页", "https://github.com/amzxyz/rime-wanxiang"),
     ("万象语法模型与词库工具", "https://github.com/amzxyz/RIME-LMDG"),
     ("CNB国内仓库",   "https://cnb.cool/amzxyz/rime-wanxiang"),
 ]
 
 # —— 在线更新相关常量 ——
 OWNER = "amzxyz"
-REPO = "rime_wanxiang"
+REPO = "rime-wanxiang"
 CNB_REPO = "rime-wanxiang"
 MODEL_REPO = "RIME-LMDG"
 DICT_TAG = "dict-nightly"
@@ -2608,7 +2606,6 @@ class UpdateWorker(QThread):
                 self._deploy_linux_ibus()
     def _deploy_linux_fcitx5_safe(self):
         """Linux Fcitx5 部署方案 (使用 dbus-send)"""
-        self.log(">>> [Fcitx5] 正在触发 Rime 部署 (dbus-send)...")
         dbus_tool = shutil.which("dbus-send")
         
         if not dbus_tool:
@@ -2628,13 +2625,10 @@ class UpdateWorker(QThread):
                 "variant:string:"  # 注意这里，对应 Fcitx5 需要的 variant 类型空值
             ]
             
-            self.log("📡 发送 DBus 信号指令: " + " ".join(cmd))
             clean_env = os.environ.copy()
             if 'LD_LIBRARY_PATH' in clean_env:
                 clean_env['LD_LIBRARY_PATH'] = clean_env.get('LD_LIBRARY_PATH_ORIG', '')
             subprocess.run(cmd, env=clean_env, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            self.log("✅ Fcitx5 部署信号发送成功。")
-
         except subprocess.CalledProcessError as e:
             # 划重点：把底层真正的英文报错内容解出来！
             error_details = e.stderr.decode('utf-8', errors='ignore').strip() if e.stderr else "无详细错误信息"
@@ -2650,7 +2644,6 @@ class UpdateWorker(QThread):
         if ibus_cmd:
             try:
                 subprocess.run([ibus_cmd, "restart"], check=True)
-                self.log("✅ [IBus] 重启指令已发送")
             except Exception as e:
                 self.log(f"❌ IBus 重启指令失败: {e}")
 
@@ -2762,7 +2755,7 @@ class UpdateWorker(QThread):
                 direct_url = f"https://github.com/{OWNER}/{repo_gh}/releases/download/{release_tag}/{real_fn}"
                 src_name = "GitHub (Direct Link)"
             
-            self.log(f"⚡ [{src_name}] 跳过 API 检查，直接连接: {real_fn}")
+            self.log(f">>> {task_type}: 使用直链下载")
             return {
                 "url": direct_url, "tag": release_tag, "src": src_name,
                 "hash": "", "time": "", "name": real_fn
@@ -2810,7 +2803,7 @@ class UpdateWorker(QThread):
         if cnb_info: return cnb_info
 
         # 2. === 检查 GitHub ===
-        self.log(f"⏳ 正在连接 GitHub API 查找: {pattern} ...")
+        self.log(f">>> {task_type} 检查: 通过 API 获取")
         gh_urls = [
             f"https://api.github.com/repos/{OWNER}/{repo_gh}/releases/tags/{specific_tag}" if specific_tag else None,
             f"https://api.github.com/repos/{OWNER}/{repo_gh}/releases"
@@ -2909,7 +2902,6 @@ class UpdateWorker(QThread):
 
     def _detect_smart_root(self, extract_root: str, task_type: str) -> str:
         """智能解压根目录检测"""
-        self.log(f"🔎 正在智能分析解压路径 ({task_type})...")
         if task_type in ['dict', '词库组件']:
             for root, dirs, files in os.walk(extract_root):
                 for f in files:
@@ -2960,8 +2952,8 @@ class UpdateWorker(QThread):
                     self.done_sig.emit(False, "❌ 错误: Rime用户目录无效"); return
                 
                 mode_dict = {0: '全量', 1: '仅方案', 2: '仅词库', 3: '仅模型', 4: '预览方案'}
-                self.log(f"🚀 开始更新任务 | 模式: {mode_dict.get(self.cfg.scope, '未知')}")
-                self.log(f"📂 目标目录: {self.cfg.rime_dir}")
+                self.log(f">>> 开始更新任务: {mode_dict.get(self.cfg.scope, '未知')}")
+                self.log(f">>> 目标目录: {self.cfg.rime_dir}")
                 
                 # --- 1. 任务分发---
                 extract_temp = os.path.join(temp_root, "extract")
@@ -2992,9 +2984,7 @@ class UpdateWorker(QThread):
                 # --- 2. 纯下载循环 (进程活跃中) ---
                 for task_type, gh_repo, cnb_repo, pattern, final_dest, specific_tag in tasks:
                     if self._stop: break
-                    
-                    self.log(f"\n📦 正在检查 {task_type}...")
-                    
+
                     if task_type == 'CustomZip':
                         remote_data = {"url": self.cfg.custom_url, "tag": "custom", "src": "Custom URL", "hash": "", "time": "", "name": "custom.zip"}
                     else:
@@ -3002,13 +2992,12 @@ class UpdateWorker(QThread):
                         remote_data = self._check_url(cnb_repo, gh_repo, pattern, specific_tag, task_type)
                     
                     if not remote_data:
-                        self.log(f"⚠️ 跳过: 未能获取到 {task_type} 的远程资源。"); continue
+                        self.log(f">>> {task_type}: 未能获取到远程资源。"); continue
 
                     url, tag, remote_hash = remote_data['url'], remote_data['tag'], remote_data.get('hash')
                     should_skip = False
                     if task_type == '预览方案':
-                        self.log(f"   ℹ️ [检测结果] {task_type} (内测)")
-                        self.log(f"      ✨ 预览版不参与版本比对，直接执行覆盖下载！")
+                        self.log(f">>> {task_type}: 预览模式，跳过比对直接下载")
                         should_skip = False  # 永远不跳过
                         
                     elif task_type == '方案组件':
@@ -3016,35 +3005,37 @@ class UpdateWorker(QThread):
                         local_ver = self.cfg.current_versions.get('方案组件', "0.0.0")
                         if local_ver == "0.0.0": local_ver = "未记录"
                         
-                        self.log(f"   ℹ️ [检测结果] {task_type}")
-                        self.log(f"      版本对比: 本地[{local_ver}] vs 在线[{tag}]")
+                        self.log(f">>> {task_type}: 本地[{local_ver}] 在线[{tag}]")
                         
                         if not self.cfg.force_update and tag == local_ver:
-                            self.log(f"      ✨ 版本一致: {tag} 已最新，跳过。")
                             should_skip = True
 
                     elif task_type == 'CustomZip':
-                        self.log(f"   ℹ️ [检测结果] 自定义压缩包直连")
+                        self.log(f">>> {task_type}: 自定义压缩包直连")
                         
                     else:
                         key_map = {'词库组件': 'dict_hash', '语法模型': 'model_hash'}
                         key = key_map.get(task_type, "")
-                        local_hash = self.cfg.current_versions.get(key, "")
+                        local_ver_id = self.cfg.current_versions.get(key, "")
+                        remote_ver_id = remote_data.get('time', '')
+                        if remote_ver_id:
+                            remote_ver_id = remote_ver_id[:16].replace('T', '_')
+                        if not remote_ver_id:
+                            remote_ver_id = remote_hash
                         
-                        d_l = local_hash[:8] if local_hash else "无"
-                        d_r = remote_hash[:8] if remote_hash else "无(直链模式)"
+                        d_l = local_ver_id if local_ver_id else "无"
+                        d_r = remote_ver_id if remote_ver_id else "无(无法校验)"
                         
-                        self.log(f"   ℹ️ [检测结果] {task_type} (独立更新通道)")
-                        self.log(f"      Hash对比: 本地[{d_l}] vs 在线[{d_r}]")
+                        self.log(f">>> {task_type}: 本地[{d_l}] 在线[{d_r}]")
                         
                         if not self.cfg.force_update:
-                            if remote_hash and local_hash == remote_hash:
-                                self.log(f"      ✨ 校验一致: 文件未改变，跳过。")
+                            if remote_ver_id and local_ver_id == remote_ver_id:
+                                self.log(f"✓ 版本一致: 文件未改变，跳过")
                                 should_skip = True
 
                     if should_skip: continue
 
-                    self.log(f"🌐 来源: [{remote_data['src']}] | 🚀 正在下载...")
+                    self.log(f"✓ {task_type} 下载中...")
                     fname = os.path.basename(url.split('?')[0]) or f"update_{task_type}.tmp"
                     local_download_path = os.path.join(temp_root, fname)
                     
@@ -3059,23 +3050,23 @@ class UpdateWorker(QThread):
                             'path': local_download_path,
                             'dest': final_dest,
                             'ver': tag,
-                            'hash': remote_hash
+                            'hash': remote_hash,
+                            'time': remote_data.get('time', '')
                         })
-                        self.log(f"📥 {task_type} 下载完毕，进入安装队列。")
+                        self.log(f"✓ {task_type} 下载完毕，进入安装队列。")
 
                 # --- 3. 统一杀进程 ---
                 if not pending_tasks and not self.cfg.clean_before:
-                    self.log("✅ 检查完毕，无需更新。")
-                    self.done_sig.emit(True, "所有组件已是最新。"); return
+                    self.log("✓ 版本一致，无需更新。")
+                    self.done_sig.emit(True, "✓ 所有组件已是最新。"); return
                 time.sleep(2)
                 if self._stop: return
 
-                self.log(f"\n{'='*40}")
-                self.log("🛑 下载全部完成，正在终止进程以开始安装...")
+                self.log(">>> 开始安装任务")
                 self._kill_rime_process() # 此时才杀进程
 
                 if self.cfg.clean_before:
-                    self.log("🧹 [清理] 正在执行Clean模式...")
+                    self.log("✓ 执行清理模式")
                     target = os.path.join(self.cfg.rime_dir, "dicts") if self.cfg.scope == 2 else self.cfg.rime_dir
                     self._clean_dir_recursive(target)
 
@@ -3086,8 +3077,7 @@ class UpdateWorker(QThread):
                     t_type = task['type']
                     src_path = task['path']
                     dst_dir = task['dest']
-                    
-                    self.log(f"📦 正在安装: {t_type} ...")
+
                     try:
                         if t_type == '语法模型':
                             os.makedirs(dst_dir, exist_ok=True)
@@ -3126,30 +3116,51 @@ class UpdateWorker(QThread):
                             self._safe_merge_dir(real_source_dir, dst_dir)
 
                         if not self.cfg.custom_url:
-                            # 修改这里：只有正式版方案才记录版本号
                             if t_type == '方案组件':
                                 self.version_sig.emit("方案组件", task['ver'])
                             
-                            real_hash = task['hash']
-                            if not real_hash and os.path.exists(src_path):
-                                real_hash = self._calculate_sha256(src_path)
-
-                            # 修改这里：不记录预览方案的 Hash
-                            if real_hash:
-                                if t_type == '词库组件': self.version_sig.emit("dict_hash", real_hash)
-                                elif t_type == '语法模型': self.version_sig.emit("model_hash", real_hash)
+                            # 【核心修改】：词库和模型：强行摒弃 Hash，强制使用时间作为版本标识！
+                            elif t_type in ['词库组件', '语法模型']:
+                                time_str = str(task.get('time', ''))
+                                
+                                # 如果走直链没有抓到时间，主动通过 API 抓取
+                                if not time_str:
+                                    try:
+                                        api_url = ""
+                                        if t_type == '词库组件':
+                                            api_url = "https://api.github.com/repos/amzxyz/rime-wanxiang/releases/tags/dict-nightly"
+                                        elif t_type == '语法模型':
+                                            api_url = "https://api.github.com/repos/amzxyz/RIME-LMDG/releases/tags/LTS"
+                                        
+                                        if api_url:
+                                            api_data = self._get_api(api_url, False)
+                                            if isinstance(api_data, dict):
+                                                for a in api_data.get('assets', []):
+                                                    if (t_type == '词库组件' and 'dicts.zip' in a['name']) or \
+                                                       (t_type == '语法模型' and 'wanxiang-lts-zh-hans.gram' in a['name']):
+                                                        time_str = a.get('updated_at', '')
+                                                        break
+                                    except Exception:
+                                        pass
+                                
+                                # 如果成功获取到时间，就用时间；否则才退化使用 Hash
+                                remote_ver_id = time_str[:16].replace('T', '_') if time_str else task.get('hash', '')
+                                
+                                # 发送信号保存
+                                if remote_ver_id:
+                                    if t_type == '词库组件': self.version_sig.emit("dict_hash", remote_ver_id)
+                                    elif t_type == '语法模型': self.version_sig.emit("model_hash", remote_ver_id)
                         
                         needs_deploy = True
-                        self.log(f"✅ {t_type} 安装成功。")
+                        self.log(f"✓ {t_type} 安装完成")
 
                     except Exception as e:
-                        self.log(f"❌ 安装 {t_type} 失败: {e}")
-
+                        self.log(f"✓ {t_type} 安装失败: {e}")
                 # --- 5. 部署 ---
                 if needs_deploy or self.cfg.clean_build:
-                    self.log("⚙️ 正在触发部署...")
+                    self.log(">>> 正在触发部署")
                     self._start_and_deploy()
-                    self.done_sig.emit(True, "✨ 更新并部署完成。")
+                    self.done_sig.emit(True, "✓ 更新完成。")
                 else:
                     self.done_sig.emit(True, "更新流程结束。")
 
@@ -3182,7 +3193,7 @@ class CheckUpdateWorker(QThread):
             
         # 2. 检查方案组件版本 (修复 Latest 被自动构建 Tag 顶替的 Bug)
         try:
-            r = requests.get("https://api.github.com/repos/amzxyz/rime_wanxiang/releases", headers=headers, timeout=8)
+            r = requests.get("https://api.github.com/repos/amzxyz/rime-wanxiang/releases", headers=headers, timeout=8)
             if r.status_code == 200:
                 releases = r.json()
                 schema_tag = '未知'
@@ -3199,22 +3210,37 @@ class CheckUpdateWorker(QThread):
             results['schema'] = '网络错误'
         # 3. 检查词库与模型 (纯 GitHub 模式)
         try:
-            r = requests.get(f"https://api.github.com/repos/amzxyz/rime_wanxiang/releases/tags/{DICT_TAG}", headers=headers, timeout=8)
+            r = requests.get(f"https://api.github.com/repos/amzxyz/rime-wanxiang/releases/tags/{DICT_TAG}", headers=headers, timeout=8)
             if r.status_code == 200:
-                assets = r.json().get('assets', [])
-                remote_hash = next(((a.get('sha256', '') or (a.get('digest', '').split(':')[-1] if 'digest' in a else '')) for a in assets if 'dicts.zip' in a['name']), "")
-                results['dict'] = remote_hash[:8] if remote_hash else DICT_TAG
-            else: results['dict'] = DICT_TAG
-        except: results['dict'] = '网络错误'
+                # 【千万别漏了这一行】先把网络请求的结果解析成 assets 列表！
+                assets = r.json().get('assets', []) 
+                
+                asset = next((a for a in assets if 'dicts.zip' in a['name']), None)
+                if asset:
+                    # 提取 GitHub 的更新时间，例如 "2024-05-22T10:00:00Z"，截取年月日时分作为版本号
+                    updated_time = asset.get('updated_at', '')[:16].replace('T', '_')
+                    results['dict'] = updated_time if updated_time else DICT_TAG
+                else:
+                    results['dict'] = DICT_TAG
+            else: 
+                results['dict'] = DICT_TAG
+        except: 
+            results['dict'] = '网络错误'
 
         try:
             r = requests.get(f"https://api.github.com/repos/amzxyz/RIME-LMDG/releases/tags/{MODEL_TAG}", headers=headers, timeout=8)
             if r.status_code == 200:
                 assets = r.json().get('assets', [])
-                remote_hash = next(((a.get('sha256', '') or (a.get('digest', '').split(':')[-1] if 'digest' in a else '')) for a in assets if a['name'] == MODEL_FILE), "")
-                results['model'] = remote_hash[:8] if remote_hash else 'model'
-            else: results['model'] = 'model'
-        except: results['model'] = '网络错误'
+                asset = next((a for a in assets if a['name'] == MODEL_FILE), None)
+                if asset:
+                    updated_time = asset.get('updated_at', '')[:16].replace('T', '_')
+                    results['model'] = updated_time if updated_time else 'model'
+                else: 
+                    results['model'] = 'model'
+            else: 
+                results['model'] = 'model'
+        except: 
+            results['model'] = '网络错误'
         
         self.result_sig.emit(results)
 
@@ -3528,7 +3554,7 @@ class YamlFixDialog(QDialog):
 
         # --- 错误详情（方便看行号） ---
         lbl_details = QLabel(error_details)
-        lbl_details.setStyleSheet("color: #666; background-color: #f8f9fa; padding: 5px; border: 1px solid #ccc;")
+        lbl_details.setStyleSheet("background-color: #f8f9fa; padding: 5px; border: 1px solid #ccc;")
         lbl_details.setWordWrap(True)
         lay.addWidget(lbl_details)
 
@@ -3608,7 +3634,7 @@ class YamlDuplicateFixDialog(QDialog):
             font.setFamily("Consolas")
             font.setPointSize(11)
             edit.setFont(font)
-            edit.setStyleSheet("background-color: #f8f9fa; padding: 6px; border: 1px solid #ccc; border-radius: 4px;")
+            
             edit.setPlaceholderText("（清空此框将自动删除该行代码）")
             
             flay.addWidget(edit)
@@ -3710,7 +3736,7 @@ class SchemaCheckboxesWidget(QWidget):
         self.lay.setContentsMargins(12, 12, 12, 12)
         self.lay.setSpacing(6) 
         self.checkboxes = []
-        self.setStyleSheet("background-color: #FFFFFF; border: 1px solid #D5E3D6; border-radius: 8px;")
+        self.setStyleSheet("background-color: transparent;")
         
         import glob, os
         schemas = []
@@ -3765,24 +3791,21 @@ class SchemaCheckboxesWidget(QWidget):
                 cb = QCheckBox(s['name'])
                 cb.setProperty("schema_id", s['id'])
                 # 设置复选框样式：加粗字体，莫兰迪绿色的勾选感
-                cb.setStyleSheet("""
-                    QCheckBox { font-size: 14px; font-weight: bold; color: #333; }
-                    QCheckBox::indicator { width: 18px; height: 18px; }
-                """)
+                cb.setStyleSheet("QCheckBox { font-size: 14px; font-weight: bold; }")
                 if s['id'] in active_ids: cb.setChecked(True)
                 cb.clicked.connect(self.validate_at_least_one)
                 # (id) 莫兰迪绿圈圈部分
                 lbl_id = QLabel(s['id'])
                 lbl_id.setStyleSheet("""
                     QLabel {
-                        background-color: #E2ECE3; 
-                        color: #49814D; 
+                        background-color: rgba(97, 161, 101, 0.15); 
+                        color: #61A165; 
                         border-radius: 12px; 
                         padding: 2px 12px; 
                         font-size: 11px; 
                         font-weight: bold;
                         font-family: 'Consolas', 'Monaco', monospace;
-                        border: 1px solid #C1D4C3;
+                        border: 1px solid rgba(97, 161, 101, 0.3);
                     }
                 """)
                 
@@ -3933,12 +3956,10 @@ class MainWin(QWidget):
     def on_check_update_result(self, remote_vers):
         self.status.setText("就绪")
         
-        # 恢复读取没有后缀的 dict_hash 和 model_hash
         local_dict = self.settings.value("installed_versions/dict_hash", "0.0.0")
-        local_dict_display = local_dict[:8] if len(local_dict) > 8 else local_dict
-        
+        local_dict_display = local_dict[:8] if len(local_dict) > 20 else local_dict
         local_model = self.settings.value("installed_versions/model_hash", "0.0.0")
-        local_model_display = local_model[:8] if len(local_model) > 8 else local_model
+        local_model_display = local_model[:8] if len(local_model) > 20 else local_model
         schema_ver = ""
         rime_dir = self.upd_rime.text().strip()
         version_file = os.path.join(rime_dir, "version.txt")
@@ -4006,7 +4027,7 @@ class MainWin(QWidget):
         
         # --- 顶部提示 ---
         lbl_info = QLabel("【提示】请先选择更新源。GitHub源可能需要配置Token。\n CNB源为国内镜像。词库、模型选项因没有版本差异，所以不具备检测校验后下载的能力。")
-        lbl_info.setStyleSheet("color: #666; font-size: 14px; margin-bottom: 2px;")
+        lbl_info.setStyleSheet("font-size: 14px; margin-bottom: 2px;")
         lbl_info.setWordWrap(True)
         l.addWidget(lbl_info)
 
@@ -4348,7 +4369,6 @@ class MainWin(QWidget):
         )
         
         self.log.clear()
-        self.log.appendPlainText(">>> 开始在线更新任务")
         self.save_settings()
         
         self.upd_worker = UpdateWorker(cfg)
@@ -4374,6 +4394,9 @@ class MainWin(QWidget):
         self.tabs.setEnabled(True)
         self.status.setText("完成" if ok else "失败")
         self.log.appendPlainText(msg)
+        self.settings.sync()
+        self.save_settings()
+        
         if ok: QMessageBox.information(self, "完成", msg)
         else: QMessageBox.warning(self, "错误", msg)
     def do_import_switches(self, text_field):
@@ -4603,7 +4626,6 @@ class MainWin(QWidget):
         left_lay.setSpacing(0)
         
         self.left_frame.setMinimumWidth(220)
-        self.left_frame.setStyleSheet("#leftNavFrame { border: 1px solid #61A165; border-radius: 6px; background-color: #F8FAF8; }")
 
         nav_tool_lay = QHBoxLayout()
         nav_tool_lay.setSpacing(1)
@@ -4633,13 +4655,7 @@ class MainWin(QWidget):
         self.nav_tree.setItemsExpandable(False) 
         self.nav_tree.setIndentation(18) 
 
-        self.nav_tree.setStyleSheet("""
-            QTreeWidget { background-color: transparent; font-size: 13px; outline: none; selection-background-color: transparent; }
-            QTreeWidget::branch { background-color: transparent; }
-            QTreeWidget::item { padding: 8px 6px; border-radius: 4px; margin: 2px 4px; }
-            QTreeWidget::item:hover { background-color: rgba(97, 161, 101, 0.1); }
-            QTreeWidget::item:selected { background-color: #61A165; color: white; font-weight: bold; }
-        """)
+        self.nav_tree.setObjectName("leftNavTree")
         self.nav_tree.itemClicked.connect(self.on_nav_item_clicked)
         left_lay.addWidget(self.nav_tree)
         self.splitter.addWidget(self.left_frame)
@@ -4665,7 +4681,7 @@ class MainWin(QWidget):
         self.rb_direct_mode.setToolTip("警告：修改将直接覆盖原文件！(不支持 patch 的文件必须使用此项)")
         
         radio_style = """
-            QRadioButton { font-size: 13px; font-weight: bold; color: #555; }
+            QRadioButton { font-size: 13px; font-weight: bold; }
             QRadioButton::indicator { width: 14px; height: 14px; border-radius: 7px; border: 1px solid #A8C7AA; background-color: white; }
             QRadioButton::indicator:checked { background-color: #61A165; border: 2px solid #C1D4C3; }
             QRadioButton:disabled { color: #aaa; }
@@ -4710,7 +4726,7 @@ class MainWin(QWidget):
         self.cfg_stack = QStackedWidget()
         
         self.loading_page = QWidget()
-        self.loading_page.setStyleSheet("background-color: rgba(240, 245, 241, 0.95); border-radius: 8px; border: 1px solid #C1D4C3;")
+        self.loading_page.setObjectName("loadingPage")
         load_lay = QVBoxLayout(self.loading_page)
         self.lbl_giant_load = QLabel("⏳ 准备就绪...")
         self.lbl_giant_load.setAlignment(Qt.AlignCenter)
@@ -4736,6 +4752,8 @@ class MainWin(QWidget):
     def _create_cfg_tree(self):
         """工厂函数：生成带绝美样式的 QTreeWidget"""
         from PySide6.QtWidgets import QTreeWidget, QHeaderView, QAbstractItemView
+        from PySide6.QtCore import Qt
+        
         tree = QTreeWidget()
         tree.setHeaderLabels(["设置项目", "当前配置值", "功能说明"])
         tree.header().setSectionResizeMode(0, QHeaderView.ResizeToContents)
@@ -4746,16 +4764,34 @@ class MainWin(QWidget):
         tree.setAlternatingRowColors(False) 
         tree.setSelectionMode(QAbstractItemView.NoSelection)
         tree.setFocusPolicy(Qt.NoFocus)
+        
+        # 【完美解法】：使用 Qt 原生的 palette() 变量，不写死任何颜色！
+        # 这样它会自动跟随系统的明暗主题，彻底告别发白！
         tree.setStyleSheet("""
-            QTreeWidget { font-size: 14px; border: 1px solid #E0E0E0; border-radius: 8px; background-color: white; outline: none; }
-            QTreeWidget::item { min-height: 42px; border-bottom: 1px solid #F5F5F5; }
-            QTreeWidget::item:selected, QTreeWidget::item:focus { background-color: transparent; color: #333; border: none; border-bottom: 1px solid #F5F5F5; }
-            QHeaderView::section { background-color: #F0F5F1; color: #333; font-size: 14px; font-weight: bold; padding: 10px; border: none; border-bottom: 2px solid #61A165; }
-            QLineEdit, QComboBox { border: 1px solid #D5E3D6; border-bottom: 2px solid #C1D4C3; border-radius: 5px; padding: 4px 10px; background-color: #FFFFFF; font-size: 14px; color: #333; min-height: 24px; margin: 6px 4px; selection-background-color: #61A165; }
-            QLineEdit:hover, QComboBox:hover { border: 1px solid #61A165; border-bottom: 2px solid #49814D; background-color: #FFFFFF; }
-            QLineEdit:focus, QComboBox:focus { border: 2px solid #61A165; background-color: #FFFFFF; }
-            QComboBox::drop-down { subcontrol-origin: padding; subcontrol-position: top right; width: 25px; border-left: 1px solid #D5E3D6; background-color: transparent; border-top-right-radius: 4px; border-bottom-right-radius: 4px; }
-            QComboBox::drop-down:hover { background-color: #E2ECE3; }
+            QTreeWidget { 
+                font-size: 14px; 
+                border: 1px solid palette(midlight); 
+                border-radius: 8px; 
+                background-color: transparent; 
+                outline: none; 
+            }
+            QTreeWidget::item { 
+                min-height: 42px; 
+                border-bottom: 1px solid palette(alternate-base); 
+            }
+            QTreeWidget::item:selected, QTreeWidget::item:focus { 
+                background-color: transparent; 
+                border: none; 
+                border-bottom: 1px solid palette(highlight); 
+            }
+            QHeaderView::section { 
+                background-color: palette(window); 
+                font-size: 14px; 
+                font-weight: bold; 
+                padding: 10px; 
+                border: none; 
+                border-bottom: 2px solid #61A165; 
+            }
         """)
         return tree
     # 模块化全局中控台
@@ -4814,14 +4850,14 @@ class MainWin(QWidget):
         combo.setFixedHeight(34); combo.setFixedWidth(180)
         # 提供三个操作态，严格遵守 WYSIWYG
         combo.addItems(["保持当前配置", "写入推荐参数", "清除推荐参数 (恢复默认)"])
-        combo.setStyleSheet("border: 1px solid #D5E3D6; border-bottom: 2px solid #C1D4C3; background: #FFFFFF; border-radius: 4px; padding: 4px 8px;")
+        
         
         c_lay.addWidget(combo)
         tree.setItemWidget(item, 1, container)
         
         lbl = QLabel("一键将最优的 language、词频惩罚以及 translator 关联参数完美写入配置。")
         lbl.setWordWrap(True)
-        lbl.setStyleSheet("color: #666; font-size: 13px; padding: 4px;")
+        lbl.setStyleSheet("font-size: 13px; padding: 4px;")
         tree.setItemWidget(item, 2, lbl)
         
         self._dynamic_row_height(item, lbl.text())
@@ -4844,7 +4880,7 @@ class MainWin(QWidget):
         edit = QLineEdit()
         # 视觉对齐：强行锁死宽度 180
         edit.setFixedHeight(34); edit.setFixedWidth(180)
-        edit.setStyleSheet("border: 1px solid #D5E3D6; border-bottom: 2px solid #C1D4C3; background: #FFFFFF; border-radius: 4px; padding: 4px 8px;")
+        
         edit.setValidator(QIntValidator(1, 10)) 
         
         # 智能读取：同时查阅 default 的底包和 custom 补丁
@@ -4905,7 +4941,7 @@ class MainWin(QWidget):
         # 视觉对齐：强行锁死宽度 180
         combo.setFixedHeight(34); combo.setFixedWidth(180)
         combo.addItems(["默认 (PageUp/Dn)", "逗号句号 ( , . )", "中括号 ( [ ] )", "减号等号 ( - = )"])
-        combo.setStyleSheet("border: 1px solid #D5E3D6; border-bottom: 2px solid #C1D4C3; background: #FFFFFF; border-radius: 4px; padding: 4px 8px;")
+        
         
         accs = set()
         for b in self._get_active_bindings():
@@ -4943,21 +4979,20 @@ class MainWin(QWidget):
         c_lay.setContentsMargins(0, 4, 0, 4)
         c_lay.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         
-        style_single = "border: 1px solid #D5E3D6; border-bottom: 2px solid #C1D4C3; background: #FFFFFF; border-radius: 4px; padding: 4px 8px;"
         inv_map = {v: k for k, v in RIME_KEY_MAP.items()} 
         
         lbl2 = QLabel("次选 (2):")
-        lbl2.setStyleSheet("font-size: 13px; font-weight: bold; color: #555;")
+        lbl2.setStyleSheet("font-size: 13px; font-weight: bold; ")
         edit2 = QLineEdit()
         # 视觉对齐：两个框各占 60，配合间距正好和 180 差不多宽
         edit2.setFixedHeight(34); edit2.setFixedWidth(60); edit2.setAlignment(Qt.AlignCenter)
-        edit2.setStyleSheet(style_single)
+
         
         lbl3 = QLabel(" 三选 (3):")
-        lbl3.setStyleSheet("font-size: 13px; font-weight: bold; color: #555;")
+        lbl3.setStyleSheet("font-size: 13px; font-weight: bold; ")
         edit3 = QLineEdit()
         edit3.setFixedHeight(34); edit3.setFixedWidth(60); edit3.setAlignment(Qt.AlignCenter)
-        edit3.setStyleSheet(style_single)
+
 
         key2, key3 = "", ""
         for b in self._get_active_bindings():
@@ -5008,7 +5043,7 @@ class MainWin(QWidget):
         combo = QComboBox()
         combo.setFixedHeight(34); combo.setFixedWidth(180)
         combo.addItems(["开启 (true)", "关闭 (false)"])
-        combo.setStyleSheet("border: 1px solid #D5E3D6; border-bottom: 2px solid #C1D4C3; background: #FFFFFF; border-radius: 4px; padding: 4px 8px;")
+        
         
         # 🌟 智能三重探测：探测 default(看谁是主力) -> 探测 patch(看用户改没改) -> 探测 schema(看底层默认)
         base_data, base_patch = self._yaml_cache.get("wanxiang.schema.yaml", ({}, {}))
@@ -5055,7 +5090,7 @@ class MainWin(QWidget):
         
         lbl = QLabel("全局控制是否开启输入法对你打过的词进行动态记忆与自动词频调整。")
         lbl.setWordWrap(True)
-        lbl.setStyleSheet("color: #666; font-size: 13px; padding: 4px;")
+        lbl.setStyleSheet("font-size: 13px; padding: 4px;")
         tree.setItemWidget(item, 2, lbl)
         
         self._dynamic_row_height(item, lbl.text())
@@ -5077,7 +5112,7 @@ class MainWin(QWidget):
         
         edit = QLineEdit()
         edit.setFixedHeight(34); edit.setFixedWidth(180)
-        edit.setStyleSheet("border: 1px solid #D5E3D6; border-bottom: 2px solid #C1D4C3; background: #FFFFFF; border-radius: 4px; padding: 4px 8px;")
+        
         
         # 探测 patch(看用户改没改) -> 探测 schema(看底层默认)
         base_data, base_patch = self._yaml_cache.get("wanxiang.schema.yaml", ({}, {}))
@@ -5153,7 +5188,6 @@ class MainWin(QWidget):
         root_item = QTreeWidgetItem(tree, ["💡 超级提示模块 (super_tips)", "", "控制实时提示数据的路径、按键与屏蔽类型"])
         root_item.setFlags(root_item.flags() & ~Qt.ItemIsSelectable)
         
-        style_single = "border: 1px solid #D5E3D6; border-bottom: 2px solid #C1D4C3; background: #FFFFFF; border-radius: 4px; padding: 4px 8px;"
         
         def get_current_val(path_str, default_val):
             pro_data, pro_patch = self._yaml_cache.get("wanxiang_pro.schema.yaml", ({}, {}))
@@ -5204,7 +5238,7 @@ class MainWin(QWidget):
             if v_type == "str":
                 edit = QLineEdit()
                 edit.setFixedHeight(34); edit.setFixedWidth(180) 
-                edit.setStyleSheet(style_single)
+                
                 edit.setText(str(val))
                 c_lay.addWidget(edit)
                 widgets[key] = edit
@@ -5219,7 +5253,7 @@ class MainWin(QWidget):
             tree.setItemWidget(item, 1, container)
             
             lbl = QLabel(desc)
-            lbl.setStyleSheet("color: #666; font-size: 13px; padding: 4px;")
+            lbl.setStyleSheet("font-size: 13px; padding: 4px;")
             lbl.setWordWrap(True)
             tree.setItemWidget(item, 2, lbl)
             
@@ -5260,7 +5294,7 @@ class MainWin(QWidget):
         
         edit = QLineEdit()
         edit.setFixedHeight(34); edit.setFixedWidth(180)
-        edit.setStyleSheet("border: 1px solid #D5E3D6; border-bottom: 2px solid #C1D4C3; background: #FFFFFF; border-radius: 4px; padding: 4px 8px;")
+        
         edit.setMaxLength(1)
         
         # 智能读取当前配置 (优先读补丁)
@@ -5653,7 +5687,7 @@ class MainWin(QWidget):
                 self._yaml_dynamic_lists = file_dynamic_lists
             return
 
-        style_m = "border: 1px solid #D5E3D6; border-bottom: 2px solid #C1D4C3; background: #FFFFFF; border-radius: 5px; padding: 6px 10px;"
+        style_m = ""
         
         def safe_apply_size(itm, h):
             try:
@@ -6268,7 +6302,8 @@ class MainWin(QWidget):
                             patches_to_remove.append(f"{full_path}/{k}")
                 elif isinstance(current_val, list):
                     if is_really_changed(current_val, display_val):
-                        if is_empty(current_val) or not is_really_changed(current_val, schema_val):
+                        is_special = full_path.endswith("/__patch") or full_path.endswith("/__include")
+                        if is_empty(current_val) or (not is_special and not is_really_changed(current_val, schema_val)):
                             patches_to_remove.append(full_path)
                             patches_to_remove.append(full_path + "/+")
                         else:
@@ -6291,7 +6326,8 @@ class MainWin(QWidget):
                                 patches_to_remove.append(full_path + "/+")
                 else:
                     if is_really_changed(current_val, display_val):
-                        if is_empty(current_val) or not is_really_changed(current_val, schema_val):
+                        is_special = full_path.endswith("/__patch") or full_path.endswith("/__include")
+                        if is_empty(current_val) or (not is_special and not is_really_changed(current_val, schema_val)):
                             patches_to_remove.append(full_path)
                         else:
                             patches_to_apply[full_path] = current_val
@@ -6406,7 +6442,8 @@ class MainWin(QWidget):
                     
                     if is_full_override:
                         if is_really_changed(current_val, display_val):
-                            if is_empty(current_val) or not is_really_changed(current_val, schema_val):
+                            is_special = full_path.endswith("/__patch") or full_path.endswith("/__include")
+                            if is_empty(current_val) or (not is_special and not is_really_changed(current_val, schema_val)):
                                 patches_to_remove.append(full_path)
                             else:
                                 patches_to_apply[full_path] = current_val
@@ -6427,7 +6464,8 @@ class MainWin(QWidget):
                             if k not in current_val: patches_to_remove.append(f"{full_path}/{k}")
                 else:
                     if is_really_changed(current_val, display_val):
-                        if is_empty(current_val) or not is_really_changed(current_val, schema_val):
+                        is_special = full_path.endswith("/__patch") or full_path.endswith("/__include")
+                        if is_empty(current_val) or (not is_special and not is_really_changed(current_val, schema_val)):
                             patches_to_remove.append(full_path)
                             patches_to_remove.append(full_path + "/+")
                         else:
@@ -7179,7 +7217,6 @@ class MainWin(QWidget):
             import traceback; self.log.appendPlainText(traceback.format_exc())
             QMessageBox.critical(self, "全局保存失败", str(e))
     def _start_and_deploy_from_main(self):
-        self.log.appendPlainText("⚙️ 正在触发部署...")
         if SYSTEM_TYPE == 'windows':
             dep_path = getattr(self, 'detected_deployer', '')
             if dep_path and os.path.exists(dep_path):
@@ -7241,97 +7278,218 @@ class MainWin(QWidget):
         w = QWidget(); w.setLayout(inner); return w
 
     def apply_palette(self, dark: bool):
-        if dark:
+        # 【性能优化】：冻结界面刷新，切主题时绝不卡顿
+        self.setUpdatesEnabled(False)
+        
+        try:
+            from PySide6.QtWidgets import QApplication, QStyleFactory
+            from PySide6.QtGui import QPalette, QColor
+            from PySide6.QtCore import Qt
+            
+            # 统一跨平台基底风格
             QApplication.setStyle(QStyleFactory.create("Fusion"))
             pal = QPalette()
-            pal.setColor(QPalette.Window, QColor(53, 53, 53))
-            pal.setColor(QPalette.WindowText, Qt.white)
-            pal.setColor(QPalette.Base, QColor(35, 35, 35))
-            pal.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
-            pal.setColor(QPalette.Text, Qt.white)
-            pal.setColor(QPalette.Button, QColor(53, 53, 53))
-            pal.setColor(QPalette.ButtonText, Qt.white)
-            pal.setColor(QPalette.Highlight, QColor(42, 130, 218))
-            pal.setColor(QPalette.HighlightedText, Qt.black)
-            QApplication.setPalette(pal)
             
-            self.tabs.setStyleSheet("""
-                QTabWidget::pane { border: 1px solid #444; top: -1px; border-radius: 4px; }
-                QTabBar::tab { background-color: #353535; color: #ccc; border: 1px solid #444; padding: 6px 16px; margin-right: 2px; border-top-left-radius: 4px; border-top-right-radius: 4px; }
-                QTabBar::tab:selected { background-color: #2b542c; color: white; border: 1px solid #5cb85c; font-weight: bold; }
-                QTabBar::tab:hover:!selected { background-color: #444; }
-            """)
-            self.progress.setStyleSheet("""
-                QProgressBar {
-                    border: 1px solid #444;
-                    border-radius: 4px;
-                    text-align: center;
-                    background-color: #353535;
-                    color: #eee;
-                    font-weight: bold;
+            # ==========================================
+            #   共用：高级定制滚动条与 SVG 矢量勾选框
+            # ==========================================
+            common_scrollbar_and_checkbox_css = """
+                /* 强行接管勾选框和单选框的绘制，彻底解决无边界隐形问题 */
+                QCheckBox::indicator, QRadioButton::indicator {
+                    width: 16px; height: 16px; border-radius: 4px; 
+                    border: 1px solid #A8C7AA; /* <--- 削薄到 1px 极简细线 */
+                    background-color: transparent;
                 }
-                QProgressBar::chunk {
-                    background-color: #49814D; /* 暗色模式下稍微深一点的绿 */
-                    border-radius: 3px;
+                QRadioButton::indicator { border-radius: 8px; }
+                QCheckBox::indicator:hover, QRadioButton::indicator:hover { 
+                    border: 1px solid #61A165; /* <--- 悬浮框也保持 1px */
+                    background-color: rgba(97, 161, 101, 0.1); 
                 }
-            """)
-            self.gh_frame.setStyleSheet("""
-                #ghBox {
-                    background-color: #2b302b; /* 极深邃的暗灰绿色，融于暗色背景 */
-                    border: 1px solid #445044;
-                    border-radius: 5px;
+                QCheckBox::indicator:checked {
+                    background-color: #61A165; border: 1px solid #61A165;
+                    image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwb2x5bGluZSBwb2ludHM9IjIwIDYgOSAxNyA0IDEyIj48L3BvbHlsaW5lPjwvc3ZnPg==);
                 }
-            """)
-        else:
-            QApplication.setStyle(QStyleFactory.create("Fusion"))
-            QApplication.setPalette(QApplication.style().standardPalette())
-            self.tabs.setStyleSheet("""
-                QTabWidget::pane { 
-                    border: 1px solid #A8C7AA; 
-                    top: -1px; 
-                    border-radius: 4px; 
+                QRadioButton::indicator:checked {
+                    background-color: #61A165; border: 1px solid #61A165;
+                    image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iNiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=);
                 }
-                QTabBar::tab { 
-                    background-color: #F0F5F1; 
-                    color: #333; 
-                    border: 1px solid #A8C7AA; 
-                    padding: 6px 16px; 
-                    margin-right: 2px; 
-                    border-top-left-radius: 4px; 
-                    border-top-right-radius: 4px; 
+                QCheckBox::indicator:disabled, QRadioButton::indicator:disabled { 
+                    border: 1px solid #666; background-color: rgba(100, 100, 100, 0.2);
                 }
-                QTabBar::tab:selected { 
-                    background-color: #61A165;  /* 柔和的莫兰迪灰绿 */
-                    color: white; 
-                    border: 1px solid #61A165; 
-                    font-weight: bold; 
-                }
-                QTabBar::tab:hover:!selected { 
-                    background-color: #E2ECE3; 
-                }
-            """)
-            self.progress.setStyleSheet("""
-                QProgressBar {
-                    border: 1px solid #A8C7AA;
-                    border-radius: 4px;
-                    text-align: center;
-                    background-color: #F0F5F1;  /* 与标签页未选中背景同色，显得干净 */
-                    color: #333;
-                    font-weight: bold;
-                }
-                QProgressBar::chunk {
-                    background-color: #61A165; /* 核心莫兰迪绿 */
-                    border-radius: 3px;
-                }
-            """)
-            self.gh_frame.setStyleSheet("""
-                #ghBox {
-                    background-color: #F0F5F1; /* 莫兰迪浅绿底色 */
-                    border: 1px solid #A8C7AA;
-                    border-radius: 5px;
-                }
-            """)
-        self.settings.setValue('ui/dark', dark)
+                
+                /* 高级定制滚动条 (隐形轨道 + 莫兰迪绿悬浮) */
+                QScrollBar:vertical { border: none; background: transparent; width: 12px; margin: 0px; }
+                QScrollBar::handle:vertical { background: rgba(150, 150, 150, 0.4); border-radius: 6px; min-height: 30px; margin: 2px; }
+                QScrollBar::handle:vertical:hover { background: #61A165; }
+                QScrollBar::handle:vertical:pressed { background: #49814D; }
+                QScrollBar::sub-line:vertical, QScrollBar::add-line:vertical { border: none; background: none; height: 0px; }
+                QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: none; }
+                
+                QScrollBar:horizontal { border: none; background: transparent; height: 12px; margin: 0px; }
+                QScrollBar::handle:horizontal { background: rgba(150, 150, 150, 0.4); border-radius: 6px; min-width: 30px; margin: 2px; }
+                QScrollBar::handle:horizontal:hover { background: #61A165; }
+                QScrollBar::handle:horizontal:pressed { background: #49814D; }
+                QScrollBar::sub-line:horizontal, QScrollBar::add-line:horizontal { border: none; background: none; width: 0px; }
+                QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal { background: none; }
+            """
+
+            if dark:
+                # ==========================================
+                #   暗色模式：引入专业的护眼莫兰迪灰白
+                # ==========================================
+                off_white = QColor(210, 210, 210) # #D2D2D2，专业暗色阅读灰度
+                bg_dark = QColor(45, 45, 45)      # 柔和底色
+                
+                pal.setColor(QPalette.Window, bg_dark)
+                pal.setColor(QPalette.WindowText, off_white)
+                pal.setColor(QPalette.Base, QColor(30, 30, 30))
+                pal.setColor(QPalette.AlternateBase, bg_dark)
+                pal.setColor(QPalette.Text, off_white)
+                pal.setColor(QPalette.Button, QColor(60, 60, 60))
+                pal.setColor(QPalette.ButtonText, off_white)
+                pal.setColor(QPalette.Highlight, QColor(97, 161, 101))
+                pal.setColor(QPalette.HighlightedText, Qt.white)
+                QApplication.setPalette(pal)
+                
+                self.tabs.setStyleSheet("""
+                    QTabWidget::pane { border: 1px solid #444; top: -1px; border-radius: 4px; }
+                    QTabBar::tab { background-color: #353535; color: #D4D4D4; border: 1px solid #444; padding: 6px 16px; margin-right: 2px; border-top-left-radius: 4px; border-top-right-radius: 4px; }
+                    QTabBar::tab:selected { background-color: #49814D; color: white; border: 1px solid #61A165; font-weight: bold; }
+                    QTabBar::tab:hover:!selected { background-color: #444; }
+                """)
+                self.progress.setStyleSheet("""
+                    QProgressBar { border: 1px solid #444; border-radius: 4px; text-align: center; background-color: #353535; color: #D4D4D4; font-weight: bold; }
+                    QProgressBar::chunk { background-color: #49814D; border-radius: 3px; }
+                """)
+                self.gh_frame.setStyleSheet("#ghBox { background-color: #2b302b; border: 1px solid #445044; border-radius: 5px; }")
+                
+                yaml_theme_css = """
+                    MainWin { background-color: #2D2D2D; } 
+                    QLabel, QCheckBox, QRadioButton { color: #D4D4D4; background-color: transparent; }
+                    
+                    QTreeWidget { font-size: 14px; border: 1px solid #444; border-radius: 8px; background-color: #262626; outline: none; color: #D4D4D4; }
+                    QTreeWidget::item { min-height: 42px; border-bottom: 1px solid #444; }
+                    QTreeWidget::item:selected, QTreeWidget::item:focus { background-color: transparent; color: #fff; border: none; border-bottom: 1px solid #444; }
+                    QHeaderView::section { background-color: #353535; color: #D4D4D4; font-size: 14px; font-weight: bold; padding: 10px; border: none; border-bottom: 1px solid #444; }
+                    
+                    QLineEdit, QComboBox, QPlainTextEdit {
+                        background-color: transparent; border: 1px solid #49814D; border-radius: 4px; padding: 4px 8px;
+                        color: #D4D4D4; selection-background-color: #61A165; selection-color: white;
+                    }
+                    QLineEdit:hover, QComboBox:hover, QPlainTextEdit:hover { border: 1px solid #61A165; }
+                    QLineEdit:focus, QComboBox:focus, QPlainTextEdit:focus { border: 1px solid #61A165; background-color: rgba(97, 161, 101, 0.05); }
+                    QLineEdit:disabled, QComboBox:disabled, QPlainTextEdit:disabled { border: 1px solid #444; color: #777; }
+                    
+                    QComboBox::drop-down { border: none; width: 24px; }
+                    QComboBox QAbstractItemView { background-color: #353535; color: #D4D4D4; selection-background-color: #61A165; selection-color: white; border: 1px solid #49814D; }
+                    
+                    QGroupBox { border: 1px solid #49814D; border-radius: 5px; margin-top: 15px; padding-top: 10px; background-color: transparent; }
+                    QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top left; left: 10px; padding: 0 5px; color: #D4D4D4; font-weight: bold; }
+                    
+                    #leftNavFrame { border: 1px solid #444; border-radius: 6px; background-color: #2b2b2b; }
+                    #leftNavTree { background-color: transparent; font-size: 13px; outline: none; selection-background-color: transparent; color: #D4D4D4; }
+                    #leftNavTree::branch { background-color: transparent; }
+                    #leftNavTree::item { padding: 8px 6px; border-radius: 4px; margin: 2px 4px; }
+                    #leftNavTree::item:hover { background-color: rgba(97, 161, 101, 0.3); }
+                    #leftNavTree::item:selected { background-color: #49814D; color: white; font-weight: bold; }
+                    
+                    #loadingPage { background-color: rgba(43, 43, 43, 0.95); border-radius: 8px; border: 1px solid #444; }
+                """ + common_scrollbar_and_checkbox_css
+                
+                self.setStyleSheet(yaml_theme_css)
+
+                # 联动 Windows 暗色标题栏
+                import sys
+                if sys.platform == 'win32':
+                    try:
+                        import ctypes
+                        hwnd = int(self.winId())
+                        rendering_mode = ctypes.c_int(1)
+                        ctypes.windll.dwmapi.DwmSetWindowAttribute(hwnd, 20, ctypes.byref(rendering_mode), ctypes.sizeof(rendering_mode))
+                        ctypes.windll.dwmapi.DwmSetWindowAttribute(hwnd, 19, ctypes.byref(rendering_mode), ctypes.sizeof(rendering_mode))
+                    except Exception: pass
+
+            else:
+                # ==========================================
+                #   亮色模式：手动锁死深灰字，防止系统白字干扰
+                # ==========================================
+                dark_gray = QColor(51, 51, 51)    # 高级深灰 #333
+                bg_light = QColor(245, 245, 245)
+                
+                pal.setColor(QPalette.Window, bg_light)
+                pal.setColor(QPalette.WindowText, dark_gray)
+                pal.setColor(QPalette.Base, Qt.white)
+                pal.setColor(QPalette.AlternateBase, bg_light)
+                pal.setColor(QPalette.Text, dark_gray)
+                pal.setColor(QPalette.Button, QColor(240, 240, 240))
+                pal.setColor(QPalette.ButtonText, dark_gray)
+                pal.setColor(QPalette.Highlight, QColor(97, 161, 101))
+                pal.setColor(QPalette.HighlightedText, Qt.white)
+                QApplication.setPalette(pal)
+                
+                self.tabs.setStyleSheet("""
+                    QTabWidget::pane { border: 1px solid #A8C7AA; top: -1px; border-radius: 4px; }
+                    QTabBar::tab { background-color: #F0F5F1; color: #333; border: 1px solid #A8C7AA; padding: 6px 16px; margin-right: 2px; border-top-left-radius: 4px; border-top-right-radius: 4px; }
+                    QTabBar::tab:selected { background-color: #61A165; color: white; border: 1px solid #61A165; font-weight: bold; }
+                    QTabBar::tab:hover:!selected { background-color: #E2ECE3; }
+                """)
+                self.progress.setStyleSheet("""
+                    QProgressBar { border: 1px solid #A8C7AA; border-radius: 4px; text-align: center; background-color: #F0F5F1; color: #333; font-weight: bold; }
+                    QProgressBar::chunk { background-color: #61A165; border-radius: 3px; }
+                """)
+                self.gh_frame.setStyleSheet("#ghBox { background-color: #F0F5F1; border: 1px solid #A8C7AA; border-radius: 5px; }")
+                
+                yaml_theme_css = """
+                    MainWin { background-color: #F5F5F5; }
+                    QLabel, QCheckBox, QRadioButton { color: #333; background-color: transparent; }
+                    
+                    QTreeWidget { font-size: 14px; border: 1px solid #E0E0E0; border-radius: 8px; background-color: white; outline: none; color: #333; }
+                    QTreeWidget::item { min-height: 42px; border-bottom: 1px solid #F5F5F5; }
+                    QTreeWidget::item:selected, QTreeWidget::item:focus { background-color: transparent; color: #333; border: none; border-bottom: 1px solid #F5F5F5; }
+                    QHeaderView::section { background-color: #F0F5F1; color: #333; font-size: 14px; font-weight: bold; padding: 10px; border: none; border-bottom: 1px solid #C1D4C3; }
+                    
+                    QLineEdit, QComboBox, QPlainTextEdit {
+                        background-color: transparent; border: 1px solid #A8C7AA; border-radius: 4px; padding: 4px 8px;
+                        color: #333; selection-background-color: #61A165; selection-color: white;
+                    }
+                    QLineEdit:hover, QComboBox:hover, QPlainTextEdit:hover { border: 1px solid #61A165; }
+                    QLineEdit:focus, QComboBox:focus, QPlainTextEdit:focus { border: 1px solid #61A165; background-color: rgba(97, 161, 101, 0.05); }
+                    QLineEdit:disabled, QComboBox:disabled, QPlainTextEdit:disabled { border: 1px solid #ddd; color: #aaa; }
+                    
+                    QComboBox::drop-down { border: none; width: 24px; }
+                    QComboBox QAbstractItemView { background-color: #FFFFFF; color: #333; selection-background-color: #E2ECE3; selection-color: #333; border: 1px solid #A8C7AA; }
+                    
+                    QGroupBox { border: 1px solid #61A165; border-radius: 5px; margin-top: 15px; padding-top: 10px; background-color: transparent; }
+                    QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top left; left: 10px; padding: 0 5px; color: #333; font-weight: bold; }
+                    
+                    #leftNavFrame { border: 1px solid #61A165; border-radius: 6px; background-color: #F8FAF8; }
+                    #leftNavTree { background-color: transparent; font-size: 13px; outline: none; selection-background-color: transparent; color: #333; }
+                    #leftNavTree::branch { background-color: transparent; }
+                    #leftNavTree::item { padding: 8px 6px; border-radius: 4px; margin: 2px 4px; }
+                    #leftNavTree::item:hover { background-color: rgba(97, 161, 101, 0.1); }
+                    #leftNavTree::item:selected { background-color: #61A165; color: white; font-weight: bold; }
+                    
+                    #loadingPage { background-color: rgba(240, 245, 241, 0.95); border-radius: 8px; border: 1px solid #C1D4C3; }
+                """ + common_scrollbar_and_checkbox_css
+                
+                self.setStyleSheet(yaml_theme_css)
+
+                # 联动 Windows 亮色标题栏
+                import sys
+                if sys.platform == 'win32':
+                    try:
+                        import ctypes
+                        hwnd = int(self.winId())
+                        rendering_mode = ctypes.c_int(0)
+                        ctypes.windll.dwmapi.DwmSetWindowAttribute(hwnd, 20, ctypes.byref(rendering_mode), ctypes.sizeof(rendering_mode))
+                        ctypes.windll.dwmapi.DwmSetWindowAttribute(hwnd, 19, ctypes.byref(rendering_mode), ctypes.sizeof(rendering_mode))
+                    except Exception: pass
+
+            self.settings.setValue('ui/dark', dark)
+
+        finally:
+            # 【收尾】：切完主题后恢复屏幕刷新，瞬间出图！
+            self.setUpdatesEnabled(True)
     def show_about(self):
         links_html = "<br>".join([f'• <a href="{u}">{t}</a>' for t, u in GITHUB_LINKS]) or "（未配置链接）"
         dlg = QDialog(self)

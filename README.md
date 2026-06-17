@@ -73,24 +73,42 @@ chmod +x wanxiang-tools
 
  示例项目：
 
- [万象拼音-全拼双拼-声调辅助-反查辅助-中英混输](https://github.com/amzxyz/rime_wanxiang)   
+ [万象拼音-全拼双拼-声调辅助-反查辅助-中英混输](https://github.com/amzxyz/rime-wanxiang)   
 
 | 词库类型 | 文件名称     | 描述                   |
 |----------|--------------|------------------------|
 | 字表  | `zi.dict`  | 包含CJK字库基础区所有具有读音的字，不计多音43324字|
-| 基础词库   | `jichu.dict`  | 包含2-3字词组|
-| 联想词库 | `lianxiang.dict` | 包含5字以上词组,当输入四个字之后形成联想候选|
+| 基础词库   | `jichu.dict`  | 包含2-4字词组，保证一个基础体验，值得保留读音的、需要多候选的|
+| 联想词库 | `lianxiang.dict` | 包含5字以上词组,大部分可拆分组合已经进了模型留下的都稍显特殊，当他们聚集在一起有时候看起来没那么有用|
 | 兼容词库 | `duoyin.dict` | 包含多音字词组,用于兼容词组的多种读音场景|
 | 错音错字 | `cuoyin.dict` | 错音错字词组 ,用于兼容经常使用但是实际上在字、音是错的场景|
 
 
-### 模型使用方法：
-⚠️⚠️⚠️ 云插件和模型二者不可兼得，云插件会无差别占用翻译器特定长度的候选，因此就等于模型失效，所以使用云就放弃模型好了！
+### 语法模型
 
-**软件**：小狼毫、鼠须管直接配置即可，fcitx5需要配合安装```librime-plugin-octagram```不同的Linux发行版包名可能不同
+Gram 是最适合输入法的模型类型。在 Rime 中，它类似词库，但更灵活：能基于已有“材料”（如“住在”“礼物1”“里屋2”）动态组合出“住在礼物”片段。传统做法依赖词库硬编码“住在里屋”，即便 500 万词也难覆盖全，且检索依赖编码分段翻译，易卡顿。
+
+使用 Gram 可跳出词库维护的深坑——专业领域词库易得，日常用语却难以全面。一个语句流模型能省去大量人工维护。它基于 C++ 前缀树扫描，内存中仅映射一块区域，无需加载到内存，速度极快，因此可部署于翻译器阶段。这与所谓的智能模型完全不同，即消耗算力，又不能用于翻译器阶段，只能依赖UI搞延迟上屏，这个体验完全不如，有范围的穷举广覆盖。
+
+大模型时代不应单纯拒绝“大”，否则将错失巨大助力。
+
+
+#### 使用方法：
+
+**软件**：
+
+小狼毫、鼠须管直接配置即可，fcitx5需要配合安装```librime-plugin-octagram```不同的Linux发行版包名可能不同
+
+**说明**：
+
+1. 基于拼音权重排序序列优化，对形码无特殊处理，因此只推荐运用在以拼音序列为基础的词库中，当然更推荐使用万象词库，数据间有更多优化。
+
+2. 支持简体字模型：wanxiang-lts-zh-hans ， 繁体字模型：wanxiang-lts-zh-hant ，名称一个字母区别注意区分。
 
 **参数**：
 配置如下：
+
+注意该参数只适用于万象词库，别的词库可根据实际需求微调！再提：词库的词组、编码、排序权重等结构组成与模型加权是一场精密的计算，维持着微妙的平衡，因此只有万象词库才能发挥得更好，原则上不支持形码。
 
 ```
 __include: octagram   #启用语法模型
@@ -99,32 +117,19 @@ octagram:
   __patch:
     grammar:
       language: wanxiang-lts-zh-hans
-      collocation_max_length: 8
-      collocation_min_length: 2
-      collocation_penalty: -10
-      non_collocation_penalty: -20
-      weak_collocation_penalty: -35
-      rear_penalty: -12
+      collocation_max_length: 6
+      collocation_min_length: 3
+      collocation_penalty: -14
+      non_collocation_penalty: -6
+      weak_collocation_penalty: -100
+      rear_penalty: -20
     translator/contextual_suggestions: false
-    translator/max_homophones: 5
-    translator/max_homographs: 5
+    translator/max_homophones: 8
 ```
 
-### 词库脚本使用方法：
+### 词库处理方法：
 
-想要建立与万象一致的编码以及辅助码可以借助仓库两个脚本进行，文件名称已经表明了他的用途
-
-首先保证python依赖的安装，下载release词库刷新工具包，解压到文件夹，在这个文件夹打开终端执行下面脚本
-
-脚本打开后可以编辑参数，输入输出路径等编辑好保存，确保输出路径不存在同名文件避免被覆盖
-
-“rime固定词典和用户词典刷新为带声调编码.py” 可以用于固定词库、细胞词库制作或者用户词库迁移；
-
-“rime固定词典或者用户词典刷新为带辅助码的格式.py” 可以将你的词库刷新为携带辅助码的词库与wanxiang_pro一致的词库，需要注意的是，你可以直接使用单字表作为辅助码数据源，完成辅助码的刷新。
-
-当然你也可以维护自己的辅助码，格式为：```你{tab}ab```，使用这样的数据源来作为辅助码数据源
-
-以上两个脚本可以帮助你完成辅助码和注音，让你轻松建立与万象一致的词库
+使用万象工具箱操作，一看就懂，支持刷拼音、刷辅助码、转换简码、用户词库提炼等功能
 
 ### 鸣谢：
 分词工具：具有多种编程语言变种的词典分词工具"[结巴分词](https://github.com/fxsjy/jieba)"
@@ -138,5 +143,5 @@ octagram:
 ### 赞赏：
 如果觉得项目好用，可以请AMZ喝咖啡
 
-   <img src="https://github.com/amzxyz/rime_wanxiang/blob/wanxiang/custom/%E8%B5%9E%E8%B5%8F.jpg" width="400">   
+   <img src="https://github.com/amzxyz/rime-wanxiang/blob/wanxiang/custom/%E8%B5%9E%E8%B5%8F.jpg" width="400">   
 
